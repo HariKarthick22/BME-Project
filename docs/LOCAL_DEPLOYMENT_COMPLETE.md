@@ -84,7 +84,7 @@ BME Project/
 │   └── models/
 │       └── schemas.py (Data validation)
 │
-├── medioorbit/ (React frontend)
+├── frontend/ (React frontend)
 │   ├── src/
 │   │   ├── App.jsx (Main app)
 │   │   ├── pages/ (HomePage, ResultsPage, etc)
@@ -175,7 +175,7 @@ cd "/Users/harikarthick/Desktop/BME Project/backend"
 python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 # Terminal 2: Frontend
-cd "/Users/harikarthick/Desktop/BME Project/medioorbit"
+cd "/Users/harikarthick/Desktop/BME Project/frontend"
 npm run dev
 
 # Open browser

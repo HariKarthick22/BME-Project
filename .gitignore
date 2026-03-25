@@ -38,8 +38,8 @@ dmypy.json
 
 # Node/Frontend
 node_modules/
-medioorbit/node_modules/
-medioorbit/dist/
+frontend/node_modules/
+frontend/dist/
 npm-debug.log
 yarn-error.log
 .next/

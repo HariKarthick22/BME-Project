@@ -26,7 +26,7 @@ This document outlines the completely restructured, production-ready architectur
 │       ├── hospitals.csv              # Hospital data source (23 hospitals)
 │       └── hospitals.db               # SQLite database
 │
-├── medioorbit/                        # React 19 + Vite frontend
+├── frontend/                        # React 19 + Vite frontend
 │   ├── src/
 │   │   ├── ui/                        # ✅ NEW - All UI components unified
 │   │   │   ├── pages/
@@ -82,7 +82,7 @@ This document outlines the completely restructured, production-ready architectur
     ├── ❌ agents/ (old/deprecated)
     ├── ❌ static/ (unused HTML)
     ├── ❌ server_fastapi.py
-    └── ❌ medioorbit/src/data/hospitals.js (hardcoded data)
+    └── ❌ frontend/src/data/hospitals.js (hardcoded data)
 ```
 
 ---
@@ -177,7 +177,7 @@ Backend runs on: **http://localhost:8000**
 ### Step 4: Start Frontend
 
 ```bash
-cd "/Users/harikarthick/Desktop/BME Project/medioorbit"
+cd "/Users/harikarthick/Desktop/BME Project/frontend"
 npm install
 npm run dev
 ```

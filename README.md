@@ -112,7 +112,7 @@ This automatically:
 
 ### Step 4️⃣: Update Imports (15 min)
 
-Open `medioorbit/src/App.jsx` and update imports:
+Open `frontend/src/App.jsx` and update imports:
 
 Find these lines:
 ```javascript
@@ -148,7 +148,7 @@ INFO:     Uvicorn running on http://0.0.0.0:8000
 Open NEW terminal:
 
 ```bash
-cd "/Users/harikarthick/Desktop/BME Project/medioorbit"
+cd "/Users/harikarthick/Desktop/BME Project/frontend"
 npm install    # Only first time
 npm run dev
 ```
@@ -273,13 +273,13 @@ echo $ANTHROPIC_API_KEY
 ## 📊 FILE CHECKLIST
 
 ### ✅ New Files Created (Ready to Use)
-- [ ] `/medioorbit/src/services/hospitalService.js`
-- [ ] `/medioorbit/src/utils/normalizeData.js`
-- [ ] `/medioorbit/src/utils/medicalCoding.js`
-- [ ] `/medioorbit/src/ui/pages/ResultsPage.jsx`
-- [ ] `/medioorbit/src/ui/styles/ResultsPage.css`
-- [ ] `/medioorbit/src/ui/components/MedicalDocScanner.jsx`
-- [ ] `/medioorbit/src/ui/components/MedicalDocScanner.css`
+- [ ] `/frontend/src/services/hospitalService.js`
+- [ ] `/frontend/src/utils/normalizeData.js`
+- [ ] `/frontend/src/utils/medicalCoding.js`
+- [ ] `/frontend/src/ui/pages/ResultsPage.jsx`
+- [ ] `/frontend/src/ui/styles/ResultsPage.css`
+- [ ] `/frontend/src/ui/components/MedicalDocScanner.jsx`
+- [ ] `/frontend/src/ui/components/MedicalDocScanner.css`
 - [ ] `/ARCHITECTURE.md`
 - [ ] `/QUICK_START.md`
 - [ ] `/IMPLEMENTATION_SUMMARY.md`
@@ -300,13 +300,13 @@ echo $ANTHROPIC_API_KEY
 - [ ] `agents/` folder (old duplicate code)
 - [ ] `static/` folder (unused HTML)
 - [ ] `server_fastapi.py` (legacy file)
-- [ ] `medioorbit/src/data/hospitals.js` (hardcoded data)
-- [ ] `medioorbit/src/pages/` (after migration)
-- [ ] `medioorbit/src/components/` (after migration)
-- [ ] `medioorbit/src/styles/` (after migration)
+- [ ] `frontend/src/data/hospitals.js` (hardcoded data)
+- [ ] `frontend/src/pages/` (after migration)
+- [ ] `frontend/src/components/` (after migration)
+- [ ] `frontend/src/styles/` (after migration)
 
 ### ✏️ Files to Update (Imports)
-- [ ] `medioorbit/src/App.jsx` - Update all import paths
+- [ ] `frontend/src/App.jsx` - Update all import paths
 - [ ] Any routing configuration - Update paths
 - [ ] Any component imports - Update to `/ui/` paths
 
@@ -356,7 +356,7 @@ After completing the steps, you should have:
 curl http://localhost:8000/
 
 # Check frontend build
-cd medioorbit && npm run build
+cd frontend && npm run build
 
 # View logs
 # Terminal where backend/frontend is running shows logs

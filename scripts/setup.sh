@@ -4,7 +4,7 @@
 
 set -e  # Exit on error
 
-PROJECT_ROOT="/Users/harikarthick/Desktop/BME Project"
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
 echo "🚀 BME Project File Migration Script"
@@ -32,7 +32,7 @@ print_error() {
 
 # STEP 1: Verify directories exist
 echo "Step 1: Verifying new directory structure..."
-if [ ! -d "medioorbit/src/ui/pages" ]; then
+if [ ! -d "frontend/src/ui/pages" ]; then
     print_error "ui/pages directory not found!"
     exit 1
 fi
@@ -41,11 +41,11 @@ echo ""
 
 # STEP 2: Backup existing files
 echo "Step 2: Creating backup of existing files..."
-if [ ! -d "medioorbit/src/BACKUP" ]; then
-    mkdir -p medioorbit/src/BACKUP
-    cp -r medioorbit/src/pages/* medioorbit/src/BACKUP/ 2>/dev/null || true
-    cp -r medioorbit/src/components/* medioorbit/src/BACKUP/ 2>/dev/null || true
-    print_status "Backup created in medioorbit/src/BACKUP"
+if [ ! -d "frontend/src/BACKUP" ]; then
+    mkdir -p frontend/src/BACKUP
+    cp -r frontend/src/pages/* frontend/src/BACKUP/ 2>/dev/null || true
+    cp -r frontend/src/components/* frontend/src/BACKUP/ 2>/dev/null || true
+    print_status "Backup created in frontend/src/BACKUP"
 else
     print_warning "Backup folder already exists"
 fi
@@ -55,13 +55,13 @@ echo ""
 echo "Step 3: Migrating files to new structure..."
 
 # Copy pages
-if [ -f "medioorbit/src/pages/HomePage.jsx" ]; then
-    cp medioorbit/src/pages/HomePage.jsx medioorbit/src/ui/pages/
+if [ -f "frontend/src/pages/HomePage.jsx" ]; then
+    cp frontend/src/pages/HomePage.jsx frontend/src/ui/pages/
     print_status "HomePage.jsx"
 fi
 
-if [ -f "medioorbit/src/pages/HospitalDetailPage.jsx" ]; then
-    cp medioorbit/src/pages/HospitalDetailPage.jsx medioorbit/src/ui/pages/
+if [ -f "frontend/src/pages/HospitalDetailPage.jsx" ]; then
+    cp frontend/src/pages/HospitalDetailPage.jsx frontend/src/ui/pages/
     print_status "HospitalDetailPage.jsx"
 fi
 
@@ -78,16 +78,16 @@ COMPONENTS=(
 )
 
 for component in "${COMPONENTS[@]}"; do
-    if [ -f "medioorbit/src/components/$component" ]; then
-        cp "medioorbit/src/components/$component" medioorbit/src/ui/components/
+    if [ -f "frontend/src/components/$component" ]; then
+        cp "frontend/src/components/$component" frontend/src/ui/components/
         print_status "$component"
     fi
 done
 
 # Copy CSS files
-find medioorbit/src/components -name "*.css" -exec cp {} medioorbit/src/ui/components/ \; 2>/dev/null || true
-find medioorbit/src/pages -name "*.css" -exec cp {} medioorbit/src/ui/styles/ \; 2>/dev/null || true
-find medioorbit/src/styles -name "*.css" -exec cp {} medioorbit/src/ui/styles/ \; 2>/dev/null || true
+find frontend/src/components -name "*.css" -exec cp {} frontend/src/ui/components/ \; 2>/dev/null || true
+find frontend/src/pages -name "*.css" -exec cp {} frontend/src/ui/styles/ \; 2>/dev/null || true
+find frontend/src/styles -name "*.css" -exec cp {} frontend/src/ui/styles/ \; 2>/dev/null || true
 
 print_status "All CSS files migrated"
 echo ""
@@ -99,7 +99,7 @@ echo "Step 4: Cleaning up legacy files..."
 find agents -type f -name "*.py" 2>/dev/null && rm -rf agents/ && print_status "Deleted agents/" || true
 [ -d "static" ] && rm -rf static && print_status "Deleted static/" || true
 [ -f "server_fastapi.py" ] && rm server_fastapi.py && print_status "Deleted server_fastapi.py" || true
-[ -f "medioorbit/src/data/hospitals.js" ] && rm medioorbit/src/data/hospitals.js && print_status "Deleted hardcoded hospital data" || true
+[ -f "frontend/src/data/hospitals.js" ] && rm frontend/src/data/hospitals.js && print_status "Deleted hardcoded hospital data" || true
 
 echo ""
 
@@ -132,9 +132,9 @@ if [ -f "requirements.txt" ]; then
     print_warning "Run: source .venv/bin/activate && pip install -r requirements.txt"
 fi
 
-if [ -f "medioorbit/package.json" ]; then
+if [ -f "frontend/package.json" ]; then
     print_status "package.json found"
-    print_warning "Run: cd medioorbit && npm install"
+    print_warning "Run: cd frontend && npm install"
 fi
 echo ""
 
@@ -159,7 +159,7 @@ echo "   cd backend"
 echo "   python -m uvicorn main:app --reload"
 echo ""
 echo "4. START FRONTEND:"
-echo "   cd medioorbit"
+echo "   cd frontend"
 echo "   npm install"
 echo "   npm run dev"
 echo ""

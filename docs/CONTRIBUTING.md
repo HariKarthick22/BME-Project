@@ -148,7 +148,7 @@ python3 main.py  # Manual testing
 
 **Frontend**:
 ```bash
-cd medioorbit
+cd frontend
 npm run lint
 npm run build
 npm run preview
@@ -197,7 +197,7 @@ flake8 backend/
 ### Frontend Development
 
 ```bash
-cd medioorbit
+cd frontend
 
 # Install dependencies
 npm install

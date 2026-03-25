@@ -15,7 +15,7 @@ MediOrbit is a comprehensive medical hospital recommendation system that helps u
   - `conversation_agent.py` - Master orchestrator with Claude
 
 ### Frontend Components
-- **React 19** (`medioorbit/`) - Modern frontend application
+- **React 19** (`frontend/`) - Modern frontend application
 - **Chat Interface** - Floating chat widget with conversation capabilities
 - **Navigation Context** - State management for UI actions
 - **Prescription Upload** - Drag-and-drop prescription processing
@@ -46,7 +46,7 @@ python server_fastapi.py
 
 ### Frontend
 ```bash
-cd medioorbit
+cd frontend
 npm install
 npm run dev
 ```
@@ -59,7 +59,7 @@ npm run dev
 - Connection: `database.py`
 
 ### Development Proxy
-- Vite proxy config: `/Users/harikarthick/Desktop/BME Project/medioorbit/vite.config.js`
+- Vite proxy config: `/Users/harikarthick/Desktop/BME Project/frontend/vite.config.js`
 - Proxies `/api` requests to `localhost:8000`
 
 ## Usage
@@ -92,7 +92,7 @@ curl http://localhost:8000/api/hospitals
 ### Frontend Development
 ```bash
 # Start Vite dev server
-cd medioorbit
+cd frontend
 npm run dev
 
 # Build for production
@@ -102,7 +102,7 @@ npm run build
 ## File Structure
 
 ```
-medioorbit/
+frontend/
 ├── src/
 │   ├── components/
 │   │   ├── ChatWidget.jsx
@@ -165,7 +165,7 @@ python -m agents.intent_agent.py
 
 ### Frontend Tests
 ```bash
-cd medioorbit
+cd frontend
 npm test
 ```
 

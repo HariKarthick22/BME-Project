@@ -38,7 +38,7 @@ python -m uvicorn main:app --host 0.0.0.0 --port 8000 &
 
 #### 3️⃣ Setup React Frontend
 ```bash
-cd medioorbit
+cd frontend
 
 # Install npm packages
 npm install
@@ -90,7 +90,7 @@ npm run dev
 - [ ] Delete `/agents` folder (legacy duplicate code)
 - [ ] Delete `/static` folder (unused)
 - [ ] Delete `server_fastapi.py` (legacy file)
-- [ ] Delete `medioorbit/src/data/hospitals.js` (hardcoded data)
+- [ ] Delete `frontend/src/data/hospitals.js` (hardcoded data)
 - [ ] Delete old `pages` folder (moved to `ui/pages`)
 - [ ] Delete old `components` folder (moved to `ui/components`)
 
@@ -116,7 +116,7 @@ npm run dev
 ### Move Files to New Structure
 
 ```bash
-cd "/Users/harikarthick/Desktop/BME Project/medioorbit/src"
+cd "/Users/harikarthick/Desktop/BME Project/frontend/src"
 
 # Move pages
 mv pages/HomePage.jsx ui/pages/
@@ -162,7 +162,7 @@ curl http://localhost:5173/
 # Expected: HTML page loads (no errors)
 
 # Building
-cd medioorbit
+cd frontend
 npm run build
 
 # Expected: "✓ built in XXms" with no errors
@@ -226,7 +226,7 @@ python -m uvicorn main:app --port 9000
 **Solution**: Move .env to correct location
 ```bash
 # .env must be in project ROOT
-# Not in backend/ or medioorbit/
+# Not in backend/ or frontend/
 cp backend/.env ../.env  # if it's in wrong place
 ```
 

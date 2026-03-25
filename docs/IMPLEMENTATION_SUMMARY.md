@@ -6,19 +6,19 @@
 
 **New Folder Structure Created:**
 ```
-/medioorbit/src/ui/                    (NEW)
+/frontend/src/ui/                    (NEW)
   ├── pages/
   ├── components/
   ├── styles/
 
-/medioorbit/src/services/              (NEW)
+/frontend/src/services/              (NEW)
   └── hospitalService.js
 
-/medioorbit/src/utils/                 (NEW)
+/frontend/src/utils/                 (NEW)
   ├── normalizeData.js
   └── medicalCoding.js
 
-/medioorbit/src/hooks/                 (NEW - Ready for custom hooks)
+/frontend/src/hooks/                 (NEW - Ready for custom hooks)
 ```
 
 ### ✅ Phase 2: Core Services & Utilities (100%)
@@ -144,22 +144,22 @@ CLAUDE_MODEL_ID=claude-3-5-haiku-20241022
 
 ```bash
 # Move pages
-mv medioorbit/src/pages/HomePage.jsx medioorbit/src/ui/pages/
-mv medioorbit/src/pages/HospitalDetailPage.jsx medioorbit/src/ui/pages/
-mv medioorbit/src/pages/*.css medioorbit/src/ui/styles/
+mv frontend/src/pages/HomePage.jsx frontend/src/ui/pages/
+mv frontend/src/pages/HospitalDetailPage.jsx frontend/src/ui/pages/
+mv frontend/src/pages/*.css frontend/src/ui/styles/
 
 # Move components
-mv medioorbit/src/components/HospitalCard.jsx medioorbit/src/ui/components/
-mv medioorbit/src/components/HospitalFilters.jsx medioorbit/src/ui/components/
-mv medioorbit/src/components/ChatPanel.jsx medioorbit/src/ui/components/
-mv medioorbit/src/components/ChatWidget.jsx medioorbit/src/ui/components/
-mv medioorbit/src/components/ScoreRing.jsx medioorbit/src/ui/components/
-mv medioorbit/src/components/Navbar.jsx medioorbit/src/ui/components/
-mv medioorbit/src/components/Footer.jsx medioorbit/src/ui/components/
-mv medioorbit/src/components/*.css medioorbit/src/ui/components/
+mv frontend/src/components/HospitalCard.jsx frontend/src/ui/components/
+mv frontend/src/components/HospitalFilters.jsx frontend/src/ui/components/
+mv frontend/src/components/ChatPanel.jsx frontend/src/ui/components/
+mv frontend/src/components/ChatWidget.jsx frontend/src/ui/components/
+mv frontend/src/components/ScoreRing.jsx frontend/src/ui/components/
+mv frontend/src/components/Navbar.jsx frontend/src/ui/components/
+mv frontend/src/components/Footer.jsx frontend/src/ui/components/
+mv frontend/src/components/*.css frontend/src/ui/components/
 
 # Move all CSS to styles
-mv medioorbit/src/styles/*.css medioorbit/src/ui/styles/
+mv frontend/src/styles/*.css frontend/src/ui/styles/
 ```
 
 **Files to DELETE:**
@@ -168,10 +168,10 @@ mv medioorbit/src/styles/*.css medioorbit/src/ui/styles/
 rm -rf agents/                          # Old duplicate agents
 rm -rf static/                          # Unused static folder
 rm server_fastapi.py                    # Legacy server file
-rm medioorbit/src/data/hospitals.js    # Hardcoded hospital data
-rm -rf medioorbit/src/pages/            # Empty after migration
-rm -rf medioorbit/src/components/      # Empty after migration
-rm -rf medioorbit/src/styles/          # Empty after migration (all moved to ui/styles/)
+rm frontend/src/data/hospitals.js    # Hardcoded hospital data
+rm -rf frontend/src/pages/            # Empty after migration
+rm -rf frontend/src/components/      # Empty after migration
+rm -rf frontend/src/styles/          # Empty after migration (all moved to ui/styles/)
 ```
 
 ### 🔗 Task 3: Update Imports (15 minutes)
@@ -191,7 +191,7 @@ import HospitalCard from './ui/components/HospitalCard'
 ```
 
 **Files that need import updates:**
-- `medioorbit/src/App.jsx`
+- `frontend/src/App.jsx`
 - Any routing configuration files
 - Any components that import from old paths
 
@@ -205,7 +205,7 @@ curl http://localhost:8000/
 curl http://localhost:8000/api/hospitals?limit=5
 
 # 3. Build frontend
-cd medioorbit
+cd frontend
 npm run build
 
 # 4. Check for errors in terminal
@@ -236,7 +236,7 @@ npm run build
 cd backend && python -m uvicorn main:app --reload
 
 # Terminal 2: Frontend  
-cd medioorbit && npm run dev
+cd frontend && npm run dev
 
 # Browser: http://localhost:5173
 # Test: Search → Top 5 results → Upload document

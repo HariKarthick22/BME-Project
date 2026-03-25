@@ -26,7 +26,7 @@
 ## 🗂️ NEW FOLDER STRUCTURE
 
 ```
-medioorbit/src/
+frontend/src/
 │
 ├── 📁 ui/                        ← NEW UNIFIED UI FOLDER
 │   ├── 📁 pages/

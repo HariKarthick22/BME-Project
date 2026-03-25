@@ -12,7 +12,7 @@
 ### 1. Navigate to Frontend Directory
 
 ```bash
-cd medioorbit
+cd frontend
 ```
 
 ### 2. Install Dependencies
@@ -110,7 +110,7 @@ Opens preview server at http://localhost:4173/
 ## Project Structure
 
 ```
-medioorbit/
+frontend/
 ├── index.html                    # Entry HTML
 ├── vite.config.js               # Vite configuration
 ├── package.json                 # Dependencies
@@ -334,7 +334,7 @@ uvicorn main:app --reload --port 8000
 ### 2. Start Frontend (in new terminal)
 
 ```bash
-cd medioorbit
+cd frontend
 npm run dev
 ```
 

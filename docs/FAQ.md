@@ -146,7 +146,7 @@ Planned features include:
 curl http://localhost:8000/api/health
 
 # Check frontend build
-cd medioorbit
+cd frontend
 npm run build -- --verbose
 
 # Check database

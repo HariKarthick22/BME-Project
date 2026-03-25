@@ -26,7 +26,7 @@ python -c "from database import init_db; init_db()"
 
 #### Frontend
 ```bash
-cd medioorbit
+cd frontend
 npm install
 ```
 
@@ -39,14 +39,14 @@ cd mediorbit
 python server_fastapi.py
 
 # Terminal 2: Start React frontend
-cd medioorbit
+cd frontend
 npm run dev
 ```
 
 ### Production Mode
 ```bash
 # Build frontend
-cd medioorbit
+cd frontend
 npm run build
 
 # Start production server
@@ -147,7 +147,7 @@ python -m pytest tests/ --cov=agents
 
 ### Frontend Tests
 ```bash
-cd medioorbit
+cd frontend
 npm test
 
 # Run with coverage

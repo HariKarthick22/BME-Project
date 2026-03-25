@@ -6,7 +6,7 @@
 ## What Was Implemented
 
 ### 1. ResultsPage.jsx - Data Normalization & SessionStorage Integration
-**File:** `/medioorbit/src/pages/ResultsPage.jsx`
+**File:** `/frontend/src/pages/ResultsPage.jsx`
 
 **Changes Made:**
 - Added `normalizeHospital()` function (lines 8-60) that:
@@ -32,7 +32,7 @@ specialties (JSON string) → specialties (array)
 ```
 
 ### 2. HospitalCard.jsx - Safe Field Access
-**File:** `/medioorbit/src/components/HospitalCard.jsx`
+**File:** `/frontend/src/components/HospitalCard.jsx`
 
 **Changes Made:**
 - Extracted unsafe field access to safe variables (lines 10-20):
@@ -47,7 +47,7 @@ specialties (JSON string) → specialties (array)
 - Prevents crashes from missing or malformed data
 
 ### 3. ChatWidget.jsx - Already Correct
-**File:** `/medioorbit/src/components/ChatWidget.jsx`
+**File:** `/frontend/src/components/ChatWidget.jsx`
 - Already correctly stores results in sessionStorage (line 74)
 - No changes needed
 
@@ -113,8 +113,8 @@ The implementation is production-ready. To test:
 
 ## Files Modified
 
-1. `/medioorbit/src/pages/ResultsPage.jsx` - Complete rewrite with normalization
-2. `/medioorbit/src/components/HospitalCard.jsx` - Safe field access throughout
+1. `/frontend/src/pages/ResultsPage.jsx` - Complete rewrite with normalization
+2. `/frontend/src/components/HospitalCard.jsx` - Safe field access throughout
 3. No changes needed to ChatWidget.jsx
 
 ## Build Status
