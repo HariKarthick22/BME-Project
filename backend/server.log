@@ -1,0 +1,5 @@
+INFO:     Started server process [67015]
+INFO:     Waiting for application startup.
+INFO:httpx:HTTP Request: HEAD https://huggingface.co/d4data/biomedical-ner-all/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+INFO:httpx:HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/d4data/biomedical-ner-all/015a4050c9ac99722e61c547aa9b4282bcbedc7f/config.json "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: HEAD https://huggingface.co/d4data/biomedical-ner-all/resolve/main/model.safetensors "HTTP/1.1 302 Found"
