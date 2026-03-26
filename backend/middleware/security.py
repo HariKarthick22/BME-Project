@@ -21,13 +21,13 @@ def setup_security(app: FastAPI):
     ).split(",")
     allowed_origins = [origin.strip() for origin in allowed_origins]
 
-    # CORS Configuration - restrictive whitelist only
+    # CORS Configuration - explicit header whitelist (not wildcard)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins,
         allow_credentials=True,
-        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["Content-Type", "Authorization", "X-Session-ID"],
     )
 
     # Rate limiting

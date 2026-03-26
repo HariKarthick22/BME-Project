@@ -1,130 +1,90 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNavigation } from '../../context/NavigationAgent';
 import ChatPanel from './ChatPanel';
+import { streamChat } from '../../services/chatService';
 
 /**
- * ChatWidget Component
- * 
- * Floating chat bubble that opens a chat panel for interacting with
- * the MediOrbit AI medical assistant. Integrates with the backend API
- * to send messages and receive responses with hospital recommendations
- * and navigation actions.
+ * ChatWidget
+ *
+ * Floating chat bubble that opens the CarePath AI chat panel.
+ * Streams responses token-by-token from POST /api/chat/stream so the
+ * user sees words appearing in real time instead of waiting for the
+ * full response.
  */
 const ChatWidget = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
-  const [typing, setTyping] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
   const [sessionId] = useState(() => `session-${Date.now()}`);
+
   const { navigateToResults, navigateToHome, highlightHospital, clearHighlight } = useNavigation();
 
-  /**
-   * Send message to backend and get AI response
-   */
+  // ---------------------------------------------------------------------------
+  // Send message — uses SSE streaming
+  // ---------------------------------------------------------------------------
   const handleSendMessage = async () => {
-    if (!message.trim()) return;
+    const text = message.trim();
+    if (!text || isStreaming) return;
 
-    const userMessage = message;
     setMessage('');
 
-    // Add user message to chat
-    setMessages(prev => [...prev, { 
-      type: 'user', 
-      text: userMessage, 
-      timestamp: new Date() 
-    }]);
-    setTyping(true);
+    // Append user bubble immediately
+    setMessages(prev => [...prev, { type: 'user', text, timestamp: new Date() }]);
+    setIsStreaming(true);
+
+    // Insert a blank bot bubble that we'll fill token-by-token
+    const botId = `bot-${Date.now()}`;
+    setMessages(prev => [
+      ...prev,
+      { id: botId, type: 'bot', text: '', streaming: true, timestamp: new Date() },
+    ]);
 
     try {
-      // Send to backend API
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      await streamChat({
+        sessionId,
+        message: text,
+        onToken: (token) => {
+          setMessages(prev =>
+            prev.map(m =>
+              m.id === botId ? { ...m, text: m.text + token } : m,
+            ),
+          );
         },
-        body: JSON.stringify({
-          session_id: sessionId,
-          message: userMessage,
-          prescription_data: null
-        })
+        onDone: () => {
+          // Mark streaming finished so cursor disappears
+          setMessages(prev =>
+            prev.map(m => (m.id === botId ? { ...m, streaming: false } : m)),
+          );
+          setIsStreaming(false);
+        },
+        onError: (err) => {
+          console.error('Chat stream error:', err);
+          setMessages(prev =>
+            prev.map(m =>
+              m.id === botId
+                ? {
+                    ...m,
+                    text: 'Sorry, I encountered an issue. Please try again.',
+                    streaming: false,
+                  }
+                : m,
+            ),
+          );
+          setIsStreaming(false);
+        },
       });
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      
-      // Add bot response to chat
-      setMessages(prev => [...prev, {
-        type: 'bot',
-        text: data.text,
-        timestamp: new Date()
-      }]);
-
-      // Process UI actions from response
-      if (data.actions && Array.isArray(data.actions)) {
-        processActions(data.actions);
-      }
-
-      // If hospitals were matched, might want to navigate
-      if (data.hospitals && data.hospitals.length > 0) {
-        // Store hospitals in session/context for results page
-        sessionStorage.setItem('lastSearchResults', JSON.stringify(data.hospitals));
-      }
-
-    } catch (error) {
-      console.error('Chat API error:', error);
-      setMessages(prev => [...prev, {
-        type: 'bot',
-        text: 'Sorry, I encountered an error. Please try again.',
-        timestamp: new Date()
-      }]);
-    } finally {
-      setTyping(false);
+    } catch (err) {
+      console.error('Unexpected chat error:', err);
+      setIsStreaming(false);
     }
   };
 
-  /**
-   * Process UI actions returned from the backend
-   */
-  const processActions = (actions) => {
-    actions.forEach(action => {
-      switch (action.action_type) {
-        case 'navigate_to_results':
-          // Small delay to show message before navigation
-          setTimeout(() => navigateToResults(action.data?.query || ''), 500);
-          break;
-        case 'navigate_to_hospital_detail':
-          if (action.data?.hospital_id) {
-            setTimeout(() => navigate(`/hospital/${action.data.hospital_id}`), 500);
-          }
-          break;
-        case 'highlight_hospital':
-          if (action.data?.hospital) {
-            highlightHospital(action.data.hospital);
-          }
-          break;
-        case 'clear_highlight':
-          clearHighlight();
-          break;
-        default:
-          console.log('Unknown action:', action.action_type);
-      }
-    });
-  };
-
-  // Handle keyboard enter key
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  // Handle navigation actions from chat panel
+  // ---------------------------------------------------------------------------
+  // Navigation actions dispatched from the chat panel
+  // ---------------------------------------------------------------------------
   const handleNavigationAction = (action, data) => {
     switch (action) {
       case 'navigate_to_results':
@@ -139,32 +99,55 @@ const ChatWidget = () => {
       case 'clear_highlight':
         clearHighlight();
         break;
+      case 'navigate_to_hospital_detail':
+        if (data?.hospital_id) navigate(`/hospital/${data.hospital_id}`);
+        break;
       default:
-        console.log('Unknown action:', action);
+        break;
     }
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
   return (
     <div className="fixed bottom-4 right-4 z-50">
-      {/* Chat widget button */}
-      <div 
-        onClick={() => setIsOpen(!isOpen)}
-        className="bg-blue-600 text-white p-3 rounded-full shadow-lg cursor-pointer hover:bg-blue-700 transition-colors"
+      {/* Floating action button */}
+      <button
+        onClick={() => setIsOpen(prev => !prev)}
+        aria-label={isOpen ? 'Close chat' : 'Open CarePath AI chat'}
+        className="bg-blue-600 text-white px-4 py-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
       >
-        {typing ? (
-          <div className="flex items-center space-x-2">
-            <div className="animate-pulse h-3 w-3 bg-white rounded-full"></div>
-            <span>Typing...</span>
-          </div>
+        {isStreaming ? (
+          <>
+            <span className="flex space-x-1">
+              <span className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:0ms]" />
+              <span className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:150ms]" />
+              <span className="h-2 w-2 bg-white rounded-full animate-bounce [animation-delay:300ms]" />
+            </span>
+            <span className="text-sm font-medium">Thinking…</span>
+          </>
         ) : (
-          <div className="flex items-center space-x-2">
+          <>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.502 8-10 8S2 16.418 2 12c0-4.418 4.493-8 10-8s10 3.582 10 8z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.502 8-10 8S2 16.418 2 12c0-4.418 4.493-8 10-8s10 3.582 10 8z"
+              />
             </svg>
-            <span>Chat</span>
-          </div>
+            <span className="text-sm font-medium">CarePath AI</span>
+          </>
         )}
-      </div>
+      </button>
 
       {/* Chat panel */}
       {isOpen && (
@@ -176,7 +159,7 @@ const ChatWidget = () => {
           onKeyPress={handleKeyPress}
           onNavigationAction={handleNavigationAction}
           onClose={() => setIsOpen(false)}
-          typing={typing}
+          isStreaming={isStreaming}
         />
       )}
     </div>

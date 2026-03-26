@@ -7,7 +7,12 @@ import bcrypt
 import jwt
 from fastapi import HTTPException, status
 
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your_secret_key_must_be_strong_min_32_chars")
+SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError(
+        "JWT_SECRET_KEY environment variable must be set. "
+        "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\""
+    )
 ALGORITHM = "HS256"
 EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRE_MINUTES", "30"))
 
