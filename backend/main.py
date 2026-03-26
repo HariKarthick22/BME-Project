@@ -136,6 +136,24 @@ def root():
     """Return a simple health-check payload confirming the API is running."""
     return {"status": "MediOrbit API is running", "version": "1.0.0"}
 
+@app.get("/api/health")
+def health():
+    """Health check endpoint for monitoring."""
+    return {
+        "status": "running", 
+        "version": "1.0.0",
+        "ollama": check_ollama()
+    }
+
+def check_ollama() -> bool:
+    """Check if Ollama is available."""
+    try:
+        import requests
+        requests.get("http://localhost:11434/api/tags", timeout=2)
+        return True
+    except:
+        return False
+
 
 # ---------------------------------------------------------------------------
 # POST /api/chat
