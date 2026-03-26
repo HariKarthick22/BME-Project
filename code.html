@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Mediorbit | Global Surgical Excellence</title>
+    
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/history@5/umd/history.development.js"></script>
+    <script src="https://unpkg.com/react-router@6.3.0/umd/react-router.development.js"></script>
+    <script src="https://unpkg.com/react-router-dom@6.3.0/umd/react-router-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Manrope:wght@200..800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-variant": "#e3e2e1",
+              "primary-container": "#064e3b",
+              "inverse-surface": "#2f3130",
+              "on-tertiary": "#ffffff",
+              "outline": "#707974",
+              "secondary-fixed": "#6dfe9c",
+              "on-secondary-container": "#007439",
+              "tertiary-container": "#6b342d",
+              "surface-container-highest": "#e3e2e1",
+              "on-tertiary-fixed": "#380d08",
+              "surface-bright": "#faf9f8",
+              "surface-container-high": "#e9e8e7",
+              "outline-variant": "#bfc9c3",
+              "background": "#faf9f8",
+              "surface-container": "#eeeeed",
+              "primary": "#003527",
+              "error-container": "#ffdad6",
+              "surface-container-lowest": "#ffffff",
+              "secondary-fixed-dim": "#4de082",
+              "on-surface-variant": "#404944",
+              "on-primary-fixed-variant": "#0b513d",
+              "inverse-primary": "#95d3ba",
+              "on-surface": "#1a1c1c",
+              "inverse-on-surface": "#f1f0f0",
+              "on-secondary-fixed-variant": "#005227",
+              "surface-tint": "#2b6954",
+              "on-primary-fixed": "#002117",
+              "surface-dim": "#dadad9",
+              "secondary": "#006d36",
+              "on-tertiary-fixed-variant": "#6e372f",
+              "surface": "#faf9f8",
+              "primary-fixed-dim": "#95d3ba",
+              "on-error": "#ffffff",
+              "error": "#ba1a1a",
+              "on-tertiary-container": "#ea9e93",
+              "primary-fixed": "#b0f0d6",
+              "secondary-container": "#6dfe9c",
+              "on-error-container": "#93000a",
+              "on-primary": "#ffffff",
+              "tertiary-fixed-dim": "#ffb4a9",
+              "surface-container-low": "#f4f3f2",
+              "on-secondary": "#ffffff",
+              "tertiary": "#4f1f19",
+              "on-secondary-fixed": "#00210c",
+              "tertiary-fixed": "#ffdad5",
+              "on-primary-container": "#80bea6",
+              "on-background": "#1a1c1c"
+            },
+            fontFamily: {
+              "headline": ["Newsreader", "serif"],
+              "body": ["Manrope", "sans-serif"],
+              "label": ["Manrope", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .serif-italic { font-family: 'Newsreader', serif; font-style: italic; }
+        .glass-nav { background: rgba(250, 249, 248, 0.8); backdrop-filter: blur(20px); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        html { scroll-behavior: smooth; }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface selection:bg-secondary-container">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { createRoot } = ReactDOM;
+        const { MemoryRouter, Routes, Route, Link, useNavigate, useLocation } = ReactRouterDOM;
+
+        // --- Common Components ---
+
+        const Navbar = () => {
+            const navigate = useNavigate();
+            return (
+                <nav className="fixed top-0 w-full z-50 bg-[#faf9f8]/80 dark:bg-stone-900/80 backdrop-blur-xl shadow-[0_12px_32px_rgba(26,28,28,0.06)]">
+                    <div className="flex justify-between items-center px-12 py-6 w-full max-w-screen-2xl mx-auto">
+                        <Link to="/" className="font-serif text-2xl italic font-semibold text-emerald-950 dark:text-emerald-50">The Clinical Editorial</Link>
+                        <div className="hidden md:flex space-x-8 items-center">
+                            <Link className="text-stone-600 dark:text-stone-400 font-medium hover:text-emerald-800 dark:hover:text-emerald-300 transition-colors duration-300" to="/search">Destinations</Link>
+                            <a className="text-stone-600 dark:text-stone-400 font-medium hover:text-emerald-800 dark:hover:text-emerald-300 transition-colors duration-300" href="#">Specialties</a>
+                            <a className="text-stone-600 dark:text-stone-400 font-medium hover:text-emerald-800 dark:hover:text-emerald-300 transition-colors duration-300" href="#">Concierge</a>
+                            <a className="text-stone-600 dark:text-stone-400 font-medium hover:text-emerald-800 dark:hover:text-emerald-300 transition-colors duration-300" href="#">Journal</a>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="hidden lg:flex items-center bg-stone-100/50 dark:bg-stone-800/50 px-4 py-2 rounded-full cursor-pointer" onClick={() => navigate('/search')}>
+                                <span className="material-symbols-outlined text-stone-400 mr-2">search</span>
+                                <span className="text-stone-400 text-sm">Search Dossier</span>
+                            </div>
+                            <button className="bg-gradient-to-br from-primary to-primary-container text-on-primary px-6 py-2.5 rounded-lg text-sm font-medium tracking-tight hover:opacity-90 transition-all">
+                                Consultation
+                            </button>
+                        </div>
+                    </div>
+                </nav>
+            );
+        };
+
+        const Footer = () => (
+            <footer className="w-full border-t border-stone-200/15 dark:border-stone-800/15 bg-[#faf9f8] dark:bg-stone-950">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-12 px-12 py-24 w-full max-w-screen-2xl mx-auto">
+                    <div className="md:col-span-1">
+                        <Link to="/" className="font-serif text-3xl italic text-emerald-950 dark:text-stone-100 mb-6 block">The Clinical Editorial</Link>
+                        <p className="text-stone-500 font-sans text-xs uppercase tracking-widest leading-loose">The premier global concierge for surgical excellence and clinical transparency.</p>
+                        <p className="font-sans text-[10px] uppercase tracking-widest text-stone-500 leading-relaxed mt-4">
+                               © 2024 Mediorbit. Managed Excellence.
+                        </p>
+                    </div>
+                    <div className="flex flex-col space-y-4">
+                        <span className="text-emerald-950 dark:text-emerald-500 font-sans text-xs uppercase tracking-widest font-bold mb-4">Legal Dossier</span>
+                        <a className="text-stone-500 font-sans text-xs uppercase tracking-widest hover:text-emerald-700 underline-offset-4 underline transition-all" href="#">Privacy Dossier</a>
+                        <a className="text-stone-500 font-sans text-xs uppercase tracking-widest hover:text-emerald-700 underline-offset-4 underline transition-all" href="#">Terms of Service</a>
+                    </div>
+                    <div className="flex flex-col space-y-4">
+                        <span className="text-emerald-950 dark:text-emerald-500 font-sans text-xs uppercase tracking-widest font-bold mb-4">Standards</span>
+                        <a className="text-stone-500 font-sans text-xs uppercase tracking-widest hover:text-emerald-700 underline-offset-4 underline transition-all" href="#">Clinical Standards</a>
+                        <a className="text-stone-500 font-sans text-xs uppercase tracking-widest hover:text-emerald-700 underline-offset-4 underline transition-all" href="#">Press</a>
+                    </div>
+                    <div className="flex flex-col space-y-4">
+                        <span className="text-emerald-950 dark:text-emerald-500 font-sans text-xs uppercase tracking-widest font-bold mb-4">Partnership</span>
+                        <a className="text-stone-500 font-sans text-xs uppercase tracking-widest hover:text-emerald-700 underline-offset-4 underline transition-all" href="#">Affiliates</a>
+                        <a className="text-stone-500 font-sans text-xs uppercase tracking-widest hover:text-emerald-700 underline-offset-4 underline transition-all" href="#">Corporate Care</a>
+                    </div>
+                </div>
+            </footer>
+        );
+
+        const ScrollToTop = () => {
+            const { pathname } = useLocation();
+            useEffect(() => {
+                window.scrollTo(0, 0);
+            }, [pathname]);
+            return null;
+        };
+
+        // --- Screen 3: Landing Page (MediOrbit) ---
+
+        const LandingPage = () => {
+            const navigate = useNavigate();
+            return (
+                <div className="bg-background min-h-screen">
+                    <Navbar />
+                    <main className="pt-24">
+                        <section className="relative min-h-[921px] flex flex-col items-center justify-center px-12 text-center overflow-hidden">
+                            <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
+                                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary blur-[120px] rounded-full"></div>
+                                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary blur-[120px] rounded-full"></div>
+                            </div>
+                            <div className="relative z-10 max-w-5xl mx-auto">
+                                <span className="font-sans text-xs uppercase tracking-[0.3em] text-on-surface-variant mb-8 block">Global Surgical Network</span>
+                                <h1 className="font-headline text-6xl md:text-8xl text-primary leading-[1.1] mb-12 italic">
+                                    Find and book the world's <br/>best surgeries, <span className="text-secondary">instantly.</span>
+                                </h1>
+                                <div className="max-w-3xl mx-auto bg-surface-container-lowest p-2 rounded-2xl shadow-[0_12px_32px_rgba(26,28,28,0.06)] border border-outline-variant/10">
+                                    <div className="flex flex-col md:flex-row items-center gap-2">
+                                        <div className="flex-1 flex items-center px-6 py-4 w-full">
+                                            <span className="material-symbols-outlined text-outline mr-3">clinical_notes</span>
+                                            <input 
+                                                className="bg-transparent border-none focus:ring-0 w-full font-body text-lg placeholder:text-outline-variant" 
+                                                placeholder="Describe your procedure or condition..." 
+                                                type="text"
+                                                onKeyDown={(e) => e.key === 'Enter' && navigate('/search')}
+                                            />
+                                        </div>
+                                        <button onClick={() => navigate('/search')} className="w-full md:w-auto bg-primary text-on-primary px-10 py-4 rounded-xl font-medium flex items-center justify-center gap-2">
+                                            <span className="material-symbols-outlined text-sm" style={{fontVariationSettings: "'FILL' 1"}}>bolt</span>
+                                            Analyze
+                                        </button>
+                                    </div>
+                                    <div className="flex flex-wrap justify-center gap-6 px-6 py-4 border-t border-outline-variant/10">
+                                        <div className="flex items-center text-xs font-sans tracking-widest uppercase text-outline">
+                                            <span className="w-2 h-2 bg-secondary rounded-full mr-2 animate-pulse"></span>
+                                            Scanning hospitals...
+                                        </div>
+                                        <div className="flex items-center text-xs font-sans tracking-widest uppercase text-outline">
+                                            <span className="w-2 h-2 bg-secondary/40 rounded-full mr-2"></span>
+                                            Comparing outcomes...
+                                        </div>
+                                        <div className="flex items-center text-xs font-sans tracking-widest uppercase text-outline">
+                                            <span className="w-2 h-2 bg-secondary/40 rounded-full mr-2"></span>
+                                            Calculating savings...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section className="bg-surface-container-low py-24 px-12">
+                            <div className="max-w-screen-2xl mx-auto">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
+                                    {[
+                                        { val: "140+", label: "Global Partner Hospitals" },
+                                        { val: "30%", label: "Avg. Clinical Savings" },
+                                        { val: "98.2%", label: "Surgical Success Rating" }
+                                    ].map((stat, i) => (
+                                        <div key={i} className="flex flex-col items-center text-center space-y-4">
+                                            <span className="font-headline text-8xl text-primary italic font-light tracking-tighter">{stat.val.replace(/[+%]/, '')}<span className="text-4xl align-top text-secondary">{stat.val.match(/[+%]/)}</span></span>
+                                            <div className="h-px w-12 bg-outline-variant/30"></div>
+                                            <p className="font-sans text-xs uppercase tracking-widest text-on-surface-variant">{stat.label}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </section>
+
+                        <section className="py-32 px-12 max-w-screen-2xl mx-auto">
+                            <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+                                <div className="max-w-2xl">
+                                    <h2 className="font-headline text-5xl text-primary italic mb-6 leading-tight">Elite Specialties & Centers of Excellence</h2>
+                                    <p className="text-on-surface-variant text-lg">Curated access to the world's most distinguished medical departments, vetted for performance metrics and patient outcome transparency.</p>
+                                </div>
+                                <button className="group flex items-center gap-3 text-primary font-bold uppercase tracking-widest text-xs border-b border-primary pb-2 hover:border-secondary transition-all">
+                                    Browse Specialties
+                                    <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 h-auto md:h-[800px]">
+                                <div className="md:col-span-8 relative group overflow-hidden rounded-xl bg-primary-container cursor-pointer" onClick={() => navigate('/search')}>
+                                    <img className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKJTVJw8f9Q5Wk_XOcG5broIJyMT0Q0nljF1hffsbIl4kZdP5srjbjye6aIjze3KBFZKSjAtWYHqS7-OnSww0QlRwJa0Ucb2wFxhnqkbnBvLD2b0p5jqfM-aDgOf2F-VYOXDq9puzRImNwpOiUNugS0fdwD5s9gW46C-vAfcNmBQ5ymDlmv6mORPP1nno35yPUcweJ4SFS0WCOXXWcwcOZWRIEgH8aSJ5NiH3jv_QDwKA-fpSrPllYs7dGP3MXM6tZvRAs8TErzF0"/>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-transparent to-transparent"></div>
+                                    <div className="absolute bottom-0 left-0 p-12 w-full">
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <span className="material-symbols-outlined text-secondary-fixed text-3xl">cardiology</span>
+                                            <div className="h-px w-12 bg-secondary-fixed/30"></div>
+                                        </div>
+                                        <h3 className="font-headline text-4xl text-on-primary italic mb-2">Cardiology</h3>
+                                        <p className="text-on-primary-container max-w-md">Precision cardiac interventions and valve replacement with the world's leading rhythm experts.</p>
+                                    </div>
+                                </div>
+                                <div className="md:col-span-4 relative group overflow-hidden rounded-xl bg-surface-container-high cursor-pointer" onClick={() => navigate('/search')}>
+                                    <div className="p-10 h-full flex flex-col justify-between">
+                                        <div>
+                                            <span className="material-symbols-outlined text-primary text-4xl mb-6">orthopedics</span>
+                                            <h3 className="font-headline text-3xl text-primary italic mb-4">Orthopaedics</h3>
+                                            <p className="text-on-surface-variant text-sm leading-relaxed">Joint preservation and advanced robotic arthroplasty systems for rapid recovery.</p>
+                                        </div>
+                                        <div className="mt-8">
+                                            <ul className="space-y-3">
+                                                <li className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
+                                                    <span className="w-1.5 h-1.5 bg-secondary rounded-full"></span> Hip Replacement
+                                                </li>
+                                                <li className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
+                                                    <span className="w-1.5 h-1.5 bg-secondary rounded-full"></span> Spinal Fusion
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="md:col-span-5 relative group overflow-hidden rounded-xl bg-surface-container-low">
+                                    <img className="absolute inset-0 w-full h-full object-cover opacity-20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAs8yNWmDY4gNq3FHuG7aCbuwXeeizac9ptinyA3D_9kgZqHTMtPx0w3W8H0_ZTV-4cEYk_4obvMgKDJ4OCw9valcb9IHqd0WTf0af73YPiS4qaPxZQggiUGJWLGk9jLuBMNSjObpa4hegZYZO2v7SRLyA_zzqB3kev-lkZ17b_67_PvuI-LsxkNjC-kDsqGZSzMKhb2IQ7cZxWrIyh62622my2-RgNJh5FUoWiUybP5Io6ioKPaZsQyR_FqNvlBhRmJjRyxD1Wap8"/>
+                                    <div className="relative p-12">
+                                        <span className="material-symbols-outlined text-primary text-4xl mb-6">oncology</span>
+                                        <h3 className="font-headline text-3xl text-primary italic mb-4">Oncology</h3>
+                                        <p className="text-on-surface-variant text-sm leading-relaxed mb-8">Personalized immunotherapy protocols and surgical oncology with 4D precision mapping.</p>
+                                        <button className="bg-surface-container-lowest px-6 py-3 rounded text-primary text-xs font-bold uppercase tracking-widest shadow-sm">View Outcomes</button>
+                                    </div>
+                                </div>
+                                <div className="md:col-span-7 relative group overflow-hidden rounded-xl bg-primary">
+                                    <div className="flex flex-col md:flex-row h-full">
+                                        <div className="md:w-1/2 p-12 flex flex-col justify-center">
+                                            <span className="material-symbols-outlined text-secondary-fixed text-4xl mb-6">neurology</span>
+                                            <h3 className="font-headline text-3xl text-on-primary italic mb-4">Neurosurgery</h3>
+                                            <p className="text-on-primary-container text-sm leading-relaxed">Pioneering minimally invasive cranial procedures and complex neuro-restoration.</p>
+                                        </div>
+                                        <div className="md:w-1/2 relative bg-surface-variant/10">
+                                            <img className="w-full h-full object-cover mix-blend-overlay" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAairVqctMd6dK7LiyFdR3fv5qk2WaB-ze48wRk3hhaij8aqTUNinMqkrxhIZaZjENl2BtcWHDs8B3rv9CpU4chPnEF_C93No67JDgTs_wtjS4EYhmUvqmlGLXeRU7Y82nx6Cu8hjoKHGs8kZoEtFAEOfdAZgP7jcQZOs7OYAUerfKG_OoJHKWlHFbrh-lpjA-ZNRZSVEW3x5IDMV2f-8gkr4DQaXSqvAyCNkVb80LnvVDH4WXPJ8tV_A2IQqU1F1wq9uyRRZL5_Io"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section className="bg-[#e3e2e1] py-32 px-12">
+                            <div className="max-w-4xl mx-auto text-center">
+                                <div className="w-1 h-12 bg-primary mx-auto mb-8"></div>
+                                <h2 className="font-headline text-5xl text-primary italic mb-8">"The standard of care is no longer limited by geography, but by the quality of the dossier."</h2>
+                                <p className="font-sans text-xs uppercase tracking-[0.4em] text-on-surface-variant">— Clinical Standards Board, 2024</p>
+                            </div>
+                        </section>
+                    </main>
+                    <Footer />
+                </div>
+            );
+        };
+
+        // --- Screen 1: Search Results ---
+
+        const SearchResultsPage = () => {
+            const navigate = useNavigate();
+            const hospitals = [
+                {
+                    id: 'apollo',
+                    name: 'Apollo Hospitals',
+                    location: 'Greams Road, Chennai',
+                    score: '9.8',
+                    success: '99.2%',
+                    recovery: '14 Days',
+                    wait: '2 Days',
+                    cost: '₹4.2L',
+                    advantage: '-12%',
+                    tag: 'Premium Accredited',
+                    icon: 'verified',
+                    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuABmPe2BzMaUo9ibeLjl55fYWhJ_hnuBCAaPZc0M1a_YScT4FP3U_eh5ml3ZHPeo-WrBugM0aSSBq3ZbuaNoXojATBhLdM9CcI1vkhz_DBmK7mnLlIrRnoekZbqAREWFeKzP2T1xm-WqRMoTnskWgH57gbuGhDHPB8uXx41ToVNen8AMUwyseBw3kojwpMwgy22uA3rgkZsU0IrjDFACbAGy5Dgep9JaY2ZWyIaICZkatAwIP0Yp5bsGB_zUZQXYDZZ7PtR8nCdzqc'
+                },
+                {
+                    id: 'miot',
+                    name: 'MIOT International',
+                    location: 'Manapakkam, Chennai',
+                    score: '9.6',
+                    success: '98.8%',
+                    recovery: '16 Days',
+                    wait: '5 Days',
+                    cost: '₹3.8L',
+                    advantage: '-18%',
+                    tag: 'Orthopedic Specialist',
+                    icon: 'star',
+                    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA032eYERoTs4GVEOKT0YCWSZDbZ4y_XxNaiwwCHTK05TyzAVD4uog8lGjIvT42nA4UPH_gsA4lutbEDAOl1zkeNSeLrM1v81INrlIp8sQwGJASomsYMSYVqWZPCjNrvNUSBOhj53TpcOYL5X_vh8kld0SuI7RdAvZFdZd88PH_VmergYpdl-ZVLQZhTiNO7enLCM7gARXpZRUo5abRkOf6UdGMAe1iA9RyDYAW7gBYDb2iuFvYv-AClZLUVBpjkRKlLutLX4E_thg'
+                },
+                {
+                    id: 'fortis',
+                    name: 'Fortis Malar',
+                    location: 'Adyar, Chennai',
+                    score: '9.4',
+                    success: '98.5%',
+                    recovery: '15 Days',
+                    wait: '4 Days',
+                    cost: '₹4.5L',
+                    advantage: '-8%',
+                    tag: 'Excellence in Care',
+                    icon: 'award_star',
+                    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCJWFiqnZ554C1BOormesExc4SxCMKVj1zpcUKJ2cICaYAHNkyXqtYWsVPnn4vvlF_uVfw2GO9mNh0lTVUu-Onkd2pzavsfvl41jADW0JrIGd2qrcHFZulb0G_1jQDYrgLJewJfqIEylXHWvMczDvGAo03SbFGIVmcG-PDsws-8ZSwzODrtzqZn7tzUnoeqvc3cQgBtQs2VT62Tzp2olxqMmNezogtvaj0qu9zEAiezEShC4yk9wdhgzOo246aSZHp16wWrvpFKHxk'
+                }
+            ];
+
+            return (
+                <div className="bg-surface">
+                    <Navbar />
+                    <main className="pt-32 pb-24 px-12 max-w-screen-2xl mx-auto">
+                        <div className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-8">
+                            <div className="space-y-2">
+                                <p className="font-label text-xs uppercase tracking-[0.2em] text-on-surface-variant font-bold">Search Analysis</p>
+                                <h1 className="font-headline text-5xl md:text-6xl text-primary leading-none">
+                                    Knee Replacement <span className="serif-italic">in Chennai</span>
+                                </h1>
+                                <div className="flex items-center gap-3 mt-4">
+                                    <span className="bg-surface-container-high px-3 py-1 text-xs font-semibold rounded-full text-primary">Under ₹5L</span>
+                                    <span className="text-on-surface-variant text-sm border-l border-outline-variant pl-3">3 Match Validated Institutions</span>
+                                </div>
+                            </div>
+                            <div className="flex gap-4">
+                                <button className="flex items-center gap-2 border border-outline-variant px-5 py-2.5 rounded hover:bg-surface-container-low transition-colors text-sm font-medium">
+                                    <span className="material-symbols-outlined text-sm">filter_list</span>
+                                    Refine Metrics
+                                </button>
+                                <button className="flex items-center gap-2 border border-outline-variant px-5 py-2.5 rounded hover:bg-surface-container-low transition-colors text-sm font-medium">
+                                    <span className="material-symbols-outlined text-sm">share</span>
+                                    Export Dossier
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+                            <div className="lg:col-span-8 space-y-8">
+                                {hospitals.map((h) => (
+                                    <div key={h.id} onClick={() => navigate('/detail')} className="group cursor-pointer relative bg-surface-container-lowest p-8 rounded-xl shadow-[0_12px_32px_rgba(26,28,28,0.04)] hover:shadow-[0_20px_48px_rgba(26,28,28,0.08)] transition-all duration-500 overflow-hidden">
+                                        <div className="flex flex-col md:flex-row gap-8">
+                                            <div className="w-full md:w-56 h-40 bg-surface-container overflow-hidden rounded-lg">
+                                                <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src={h.img}/>
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <span className="material-symbols-outlined text-secondary text-base" style={{fontVariationSettings: "'FILL' 1"}}>{h.icon}</span>
+                                                            <span className="text-[10px] uppercase tracking-widest text-secondary font-bold">{h.tag}</span>
+                                                        </div>
+                                                        <h3 className="font-headline text-3xl text-primary mb-1">{h.name}</h3>
+                                                        <p className="text-on-surface-variant text-sm flex items-center gap-1">
+                                                            <span className="material-symbols-outlined text-sm">location_on</span>
+                                                            {h.location}
+                                                        </p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <div className="text-4xl font-headline text-secondary leading-none">{h.score}<span className="text-sm font-body text-on-surface-variant ml-1">/10</span></div>
+                                                        <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1">Clinical AI Score</p>
+                                                    </div>
+                                                </div>
+                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8 py-6 border-y border-outline-variant/10">
+                                                    <div>
+                                                        <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Success Rate</p>
+                                                        <p className="text-lg font-medium text-primary">{h.success}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Recovery</p>
+                                                        <p className="text-lg font-medium text-primary">{h.recovery}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Wait Time</p>
+                                                        <p className="text-lg font-medium text-primary">{h.wait}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Estimated Cost</p>
+                                                        <p className="text-lg font-medium text-secondary">{h.cost}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="mt-6 flex items-center justify-between">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="bg-secondary/10 text-secondary text-[10px] px-2 py-0.5 font-bold rounded uppercase">Market Advantage: {h.advantage}</span>
+                                                    </div>
+                                                    <button className="text-primary font-bold text-sm flex items-center gap-2 group-hover:translate-x-1 transition-transform">
+                                                        View Full Dossier
+                                                        <span className="material-symbols-outlined">arrow_forward</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <aside className="lg:col-span-4 space-y-8">
+                                <div className="bg-primary text-on-primary p-10 rounded-xl sticky top-32">
+                                    <h4 className="font-headline text-2xl mb-2">Benchmarking <span className="serif-italic">Analysis</span></h4>
+                                    <p className="text-on-primary-container text-xs font-medium uppercase tracking-widest mb-10">Cost-to-Value Index</p>
+                                    <div className="space-y-10">
+                                        {[
+                                            { name: "Apollo Hospitals", val: "₹4.2L", width: "72%" },
+                                            { name: "MIOT International", val: "₹3.8L", width: "60%" },
+                                            { name: "Fortis Malar", val: "₹4.5L", width: "80%" }
+                                        ].map((bar, i) => (
+                                            <div key={i} className="space-y-3">
+                                                <div className="flex justify-between items-end">
+                                                    <span className="text-sm font-medium">{bar.name}</span>
+                                                    <span className="text-xs text-on-primary-container">{bar.val}</span>
+                                                </div>
+                                                <div className="h-1.5 w-full bg-primary-container rounded-full overflow-hidden">
+                                                    <div className="h-full bg-secondary-fixed rounded-full" style={{width: bar.width}}></div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <div className="pt-8 border-t border-primary-container">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <span className="text-xs uppercase tracking-widest text-on-primary-container font-bold">Market Average</span>
+                                                <span className="text-lg font-headline">₹5.8L</span>
+                                            </div>
+                                            <p className="text-xs text-on-primary-container leading-relaxed">
+                                                Curated results show a 24% lower median cost compared to the global medical tourism baseline for Tier-1 facilities.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button className="w-full mt-12 py-4 border border-on-primary-container text-on-primary text-xs font-bold uppercase tracking-widest hover:bg-primary-container transition-colors rounded">
+                                        Compare Technical Specs
+                                    </button>
+                                </div>
+                                <div className="bg-surface-container-low p-10 rounded-xl">
+                                    <h5 className="font-headline text-xl text-primary mb-4">Clinical Support</h5>
+                                    <p className="text-sm text-on-surface-variant mb-6 leading-relaxed">Need help navigating these results? Our senior clinical concierge is available for a 15-minute briefing.</p>
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-full bg-secondary-container overflow-hidden">
+                                            <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3xVBiUW9dMWTVLn6CQ9M-FNu-tFKb0l-RFNCwwnq3NGk2v7FUUpjpZj5HIgGYEFgpURiUFd0rX9-9_dbpk7GfgaEgADS7aBSpVbqNn6tPMaeaFETd1h1mSiqQqQeI20OQBqSfDCdmv8340PyfwU4D-YJzs7heqXPREJ5fz0s3ldnPjpQwLx8qMMUzA1387HTnUPYiBKfpBcoV-NaXLGWvUkWdRwqENpRa810dQ8uYyVLcveb96cEKvquLeYTZOmIN24o_yU-7IV8"/>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-primary">Dr. Elena Vance</p>
+                                            <p className="text-xs text-secondary font-medium">Chief Concierge</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </aside>
+                        </div>
+                    </main>
+                    <Footer />
+                </div>
+            );
+        };
+
+        // --- Screen 2: Hospital Detail ---
+
+        const HospitalDetailPage = () => {
+            return (
+                <div className="bg-surface">
+                    <Navbar />
+                    <main className="pt-32 pb-24">
+                        <section className="px-12 max-w-screen-2xl mx-auto mb-20">
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-end">
+                                <div className="lg:col-span-8">
+                                    <div className="flex items-center gap-4 mb-6">
+                                        <span className="bg-secondary-container text-on-secondary-container px-3 py-1 text-[10px] uppercase tracking-[0.2em] font-bold rounded">Clinical Excellence</span>
+                                        <div className="flex gap-2">
+                                            <span className="text-xs font-semibold px-2 py-1 border border-outline-variant/30 rounded">JCI ACCREDITED</span>
+                                            <span className="text-xs font-semibold px-2 py-1 border border-outline-variant/30 rounded">NABH CERTIFIED</span>
+                                        </div>
+                                    </div>
+                                    <h1 className="font-serif text-7xl md:text-8xl italic text-primary leading-tight mb-8">Apollo Hospitals, <br/>Chennai</h1>
+                                    <p className="text-on-surface-variant text-xl max-w-2xl leading-relaxed">
+                                        A flagship center of excellence, integrating advanced robotic precision with half a century of clinical heritage. Managed excellence in cardiac, oncology, and multi-organ transplants.
+                                    </p>
+                                </div>
+                                <div className="lg:col-span-4 flex flex-col items-end">
+                                    <div className="bg-primary p-10 rounded-xl text-center w-full max-w-[280px] shadow-xl relative overflow-hidden group">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary/20 opacity-50"></div>
+                                        <div className="relative z-10">
+                                            <div className="text-secondary-fixed text-sm uppercase tracking-widest mb-2">AI Quality Score</div>
+                                            <div className="font-serif text-6xl text-on-primary italic mb-2">9.8</div>
+                                            <div className="h-1 w-16 bg-secondary mx-auto mb-4"></div>
+                                            <p className="text-on-primary/60 text-[10px] leading-tight uppercase tracking-tighter">Superior Clinical Outcome Index</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section className="px-12 max-w-screen-2xl mx-auto mb-24">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                {[
+                                    { icon: 'verified', val: '99.2%', label: 'Clinical Success Rate' },
+                                    { icon: 'star', val: '4.9/5', label: 'Patient Satisfaction', active: true },
+                                    { icon: 'history_edu', val: '150k+', label: 'Complex Procedures' }
+                                ].map((stat, i) => (
+                                    <div key={i} className={`bg-surface-container-lowest p-12 rounded-xl shadow-[0_12px_32px_rgba(26,28,28,0.06)] flex flex-col justify-between h-64 ${stat.active ? 'border-l-4 border-secondary' : ''}`}>
+                                        <span className={`material-symbols-outlined text-4xl ${stat.active ? 'text-secondary' : 'text-primary'}`}>{stat.icon}</span>
+                                        <div>
+                                            <div className="font-serif text-5xl text-primary mb-1">{stat.val}</div>
+                                            <div className="text-on-surface-variant uppercase tracking-widest text-xs">{stat.label}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+
+                        <section className="px-12 max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16">
+                            <div className="lg:col-span-7">
+                                <div className="mb-12">
+                                    <h2 className="font-serif text-4xl italic text-primary mb-4">8-Day Treatment Journey</h2>
+                                    <p className="text-on-surface-variant">A curated recovery path designed for international surgical patients.</p>
+                                </div>
+                                <div className="space-y-0 border-l border-outline-variant/30 ml-4">
+                                    <div className="relative pl-12 pb-12">
+                                        <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-stone-300"></div>
+                                        <span className="font-serif text-2xl text-primary block mb-2">Day 1-2: Clinical Baseline</span>
+                                        <p className="text-on-surface-variant text-sm leading-relaxed">Comprehensive pre-operative diagnostics, cardiovascular screening, and anesthetic review.</p>
+                                    </div>
+                                    <div className="relative pl-12 pb-12">
+                                        <div className="absolute -left-[13px] -top-1 w-6 h-6 rounded-full bg-secondary ring-4 ring-secondary-container"></div>
+                                        <div className="bg-surface-container-low p-8 rounded-xl">
+                                            <span className="font-serif text-3xl text-secondary italic block mb-3">Day 3: Robotic-Assisted Surgery</span>
+                                            <p className="text-primary font-medium mb-4">Minimally invasive procedure utilizing Da Vinci Xi systems.</p>
+                                            <div className="flex items-center gap-4">
+                                                <span className="bg-white px-3 py-1 rounded text-[10px] font-bold text-primary">PRECISION FOCUS</span>
+                                                <span className="bg-white px-3 py-1 rounded text-[10px] font-bold text-primary">ICU MONITORING</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="relative pl-12 pb-12">
+                                        <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-stone-300"></div>
+                                        <span className="font-serif text-2xl text-primary block mb-2">Day 4-6: Early Mobility</span>
+                                        <p className="text-on-surface-variant text-sm leading-relaxed">Personalized physiotherapy begins. Step-down to private suite with 24/7 concierge nursing.</p>
+                                    </div>
+                                    <div className="relative pl-12">
+                                        <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-stone-300"></div>
+                                        <span className="font-serif text-2xl text-primary block mb-2">Day 7-8: Final Review & Discharge</span>
+                                        <p className="text-on-surface-variant text-sm leading-relaxed">Post-operative imaging review, pharmacological titration, and international travel clearance.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="lg:col-span-5">
+                                <div className="bg-surface-container-high rounded-2xl p-10 sticky top-32 shadow-sm">
+                                    <h3 className="font-serif text-3xl italic text-primary mb-8 text-center">Cost Estimate Dossier</h3>
+                                    <div className="space-y-6 mb-10">
+                                        {[
+                                            { label: 'Surgical Fee', cost: '$12,400' },
+                                            { label: 'Hospital Stay (8 Days)', cost: '$3,200' },
+                                            { label: 'Diagnostics & Labs', cost: '$1,850' },
+                                            { label: 'Anesthesia & OT Charges', cost: '$2,100' }
+                                        ].map((item, i) => (
+                                            <div key={i} className="flex justify-between items-center pb-4 border-b border-outline-variant/20">
+                                                <span className="text-on-surface-variant text-sm uppercase tracking-wider">{item.label}</span>
+                                                <span className="font-serif text-xl text-primary">{item.cost}</span>
+                                            </div>
+                                        ))}
+                                        <div className="flex justify-between items-center pt-4">
+                                            <span className="text-primary font-bold uppercase tracking-widest text-xs">Est. Total Investment</span>
+                                            <span className="font-serif text-4xl text-secondary">$19,550</span>
+                                        </div>
+                                    </div>
+                                    <div className="bg-surface-container-lowest p-6 rounded-lg mb-8">
+                                        <div className="flex gap-4 items-start">
+                                            <span className="material-symbols-outlined text-secondary">info</span>
+                                            <p className="text-[11px] leading-relaxed text-on-surface-variant uppercase">All-inclusive package covering surgery, standard medication, private suite stay, and airport transfers. Excludes complex complications & extended stay.</p>
+                                        </div>
+                                    </div>
+                                    <button className="w-full bg-primary text-on-primary py-5 rounded-lg font-bold tracking-[0.1em] text-xs uppercase hover:bg-primary-container transition-all">
+                                        Download Itemized Quote
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section className="mt-32 px-12 max-w-screen-2xl mx-auto">
+                            <div className="relative h-[600px] rounded-3xl overflow-hidden group">
+                                <img alt="Apollo Hospital Interior" className="w-full h-full object-cover grayscale-[0.2] transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDFBfRnvn244h8RYnph0IYAdOUXrSBI3N-GttBOq3r82GhbAPbmbJrUneQv0kPLGAR3wujKus9wpehBevoTtCMWzc--tSTOFn90h1f-3YX9UZh2M3QWV3uOcYKRKqaIn6b4rfLROvk35o0fqNpgSNLX0nzmUorxrhOcDFZzOU_8ADvKU0PG99FYNUQBebEzA8NiIhyrUAkHoJV263oRZy_HuKb0S24u_lxbhHOyddP8mL7ZzVvRxijyqwGTW6csUIK86lwYHndKoQ"/>
+                                <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent"></div>
+                                <div className="absolute bottom-16 left-16 max-w-2xl">
+                                    <h2 className="font-serif text-5xl text-on-primary italic mb-6">The Precision Pulse of Chennai</h2>
+                                    <p className="text-on-primary/80 text-lg leading-relaxed mb-8">
+                                        "In medicine, the difference between a good outcome and a perfect one is measured in millimeters. At Apollo, those millimeters are our obsession."
+                                    </p>
+                                    <div className="flex items-center gap-4 text-on-primary font-serif italic text-xl">
+                                        — Dr. Prathap C. Reddy, Chairman
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </main>
+                    <Footer />
+                </div>
+            );
+        };
+
+        // --- App Component with Router ---
+
+        const App = () => {
+            return (
+                <MemoryRouter initialEntries={['/']}>
+                    <ScrollToTop />
+                    <Routes>
+                        <Route path="/" element={<LandingPage />} />
+                        <Route path="/search" element={<SearchResultsPage />} />
+                        <Route path="/detail" element={<HospitalDetailPage />} />
+                    </Routes>
+                </MemoryRouter>
+            );
+        };
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
