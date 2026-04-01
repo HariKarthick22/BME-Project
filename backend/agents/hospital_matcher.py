@@ -17,8 +17,8 @@ from __future__ import annotations
 
 import time
 
-from models.schemas import Hospital, SearchIntent, ExtractionResult
-from models.database import get_connection, row_to_dict
+from ..models.schemas import Hospital, SearchIntent, ExtractionResult
+from ..models.database import get_connection, row_to_dict
 
 # Cache for hospitals — TTL 1 hour
 _HOSPITAL_CACHE = {"data": None, "timestamp": 0}

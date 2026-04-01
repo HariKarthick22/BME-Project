@@ -1,0 +1,68 @@
+import Papa from 'papaparse';
+
+// 1. Fetch and Parse the CSV from the public folder
+export const fetchHospitalsData = async () => {
+    return new Promise((resolve, reject) => {
+        Papa.parse('/tamilnadu_hospitals_with_images.csv', {
+            download: true,
+            header: true,
+            dynamicTyping: true,
+            complete: (results) => {
+                resolve(results.data.filter(h => h.id)); // Remove empty rows
+            },
+            error: (error) => reject(error)
+        });
+    });
+};
+
+// 2. The "Dummy AI" Logic
+export const analyzeQuery = (query, hospitals) => {
+    const lowerQuery = query.toLowerCase();
+    
+    // Keyword dictionaries
+    const locations = ['chennai', 'coimbatore', 'madurai', 'trichy', 'salem', 'tirunelveli', 'tirupur', 'hosur'];
+    const specialtiesMap = {
+        'knee': 'orthopedic', 'bone': 'orthopedic', 'spine': 'orthopedic', 'hip': 'orthopedic',
+        'heart': 'cardiac', 'cardio': 'cardiac', 'cabg': 'cardiac', 'valve': 'cardiac',
+        'brain': 'neuro', 'neuro': 'neuro', 
+        'eye': 'eye', 'cataract': 'eye', 'lasik': 'eye',
+        'cancer': 'oncology', 'tumor': 'oncology', 'chemo': 'oncology',
+        'kidney': 'nephrology', 'dialysis': 'nephrology',
+        'liver': 'gastro', 'stomach': 'gastro', 'bariatric': 'gastro'
+    };
+
+    // Find requested location
+    const requestedLocation = locations.find(loc => lowerQuery.includes(loc));
+    
+    // Find requested specialty
+    let requestedSpecialty = null;
+    for (const [keyword, category] of Object.entries(specialtiesMap)) {
+        if (lowerQuery.includes(keyword)) {
+            requestedSpecialty = category;
+            break;
+        }
+    }
+
+    // Filter the hospitals based on findings
+    let matchedHospitals = hospitals;
+
+    if (requestedLocation) {
+        matchedHospitals = matchedHospitals.filter(h => h.city?.toLowerCase() === requestedLocation);
+    }
+
+    if (requestedSpecialty) {
+        matchedHospitals = matchedHospitals.filter(h => 
+            h.category?.toLowerCase().includes(requestedSpecialty) || 
+            h.specialties?.toLowerCase().includes(requestedSpecialty) ||
+            h.procedures?.toLowerCase().includes(requestedSpecialty)
+        );
+    }
+
+    // Default to returning top Premium hospitals if query is vague
+    if (matchedHospitals.length === 0) {
+        return hospitals.slice(0, 3); 
+    }
+
+    // Sort by success rate (highest first)
+    return matchedHospitals.sort((a, b) => (b.success_rate || 95) - (a.success_rate || 95)).slice(0, 5);
+};

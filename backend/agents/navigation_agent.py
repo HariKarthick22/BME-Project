@@ -8,8 +8,8 @@ to execute. No external API calls or database access.
 
 import re
 
-from models.schemas import Hospital, UIAction
-from models.database import get_available_cities
+from ..models.schemas import Hospital, UIAction
+from ..models.database import get_available_cities
 
 
 # Cache for available cities — fetched from database on first use

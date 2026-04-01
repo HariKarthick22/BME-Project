@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from transformers import Pipeline
 
-from models.schemas import ExtractionResult, PatientInfo
+from ..models.schemas import ExtractionResult, PatientInfo
 
 # ---------------------------------------------------------------------------
 # Optional dependencies

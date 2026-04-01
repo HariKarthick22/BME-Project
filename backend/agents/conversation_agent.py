@@ -11,15 +11,15 @@ import os
 
 import anthropic
 
-from models.schemas import ChatResponse, ExtractionResult, PatientInfo, UIAction
-from models.database import (
+from ..models.schemas import ChatResponse, ExtractionResult, PatientInfo, UIAction
+from ..models.database import (
     get_conversation_history,
     save_conversation_turn,
     get_latest_extraction,
 )
-from agents.intent_agent import extract_intent
-from agents.hospital_matcher import match_hospitals
-from agents.navigation_agent import generate_actions
+from .intent_agent import extract_intent
+from .hospital_matcher import match_hospitals
+from .navigation_agent import generate_actions
 
 logger = logging.getLogger(__name__)
 

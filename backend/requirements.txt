@@ -1,15 +1,54 @@
-fastapi==0.115.0
-uvicorn[standard]==0.30.6
-python-multipart==0.0.9
-python-dotenv==1.0.1
-anthropic==0.34.2
+# ============================================================
+# MediOrbit / CarePath AI — Unified Requirements
+# ============================================================
+# Install:  pip install -r requirements.txt
+# ============================================================
+
+# ── API Framework ────────────────────────────────────────────
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+python-multipart>=0.0.9
+gunicorn>=21.2.0
+
+# ── Environment & Config ─────────────────────────────────────
+python-dotenv>=1.0.1
+
+# ── LLM Providers ────────────────────────────────────────────
+anthropic>=0.34.2
 openai>=1.3.0
 groq>=0.4.0
-transformers==4.44.2
-torch==2.4.1
-Pillow==10.4.0
-pytesseract==0.3.13
-pdfplumber==0.10.3
-pydantic==2.8.2
-aiofiles==24.1.0
-httpx==0.27.2
+
+# ── Hugging Face / PyTorch ───────────────────────────────────
+torch>=2.4.0
+transformers>=4.44.0
+Pillow>=10.4.0
+
+# ── OCR & Document Processing ────────────────────────────────
+pytesseract>=0.3.13
+pdfplumber>=0.10.3
+
+# ── HTTP Clients ─────────────────────────────────────────────
+httpx>=0.27.0
+requests>=2.31.0
+aiofiles>=24.1.0
+
+# ── Data Validation ──────────────────────────────────────────
+pydantic>=2.8.2
+
+# ── Rate Limiting ────────────────────────────────────────────
+slowapi>=0.1.9
+
+# ── Database ──────────────────────────────────────────────────
+sqlalchemy>=2.0.0
+
+# ── GPU Monitoring (optional — NVIDIA only) ─────────────────
+nvidia-ml-py>=12.535.108
+
+# ── Security (optional — used by auth utils) ────────────────
+bcrypt>=4.1.0
+PyJWT>=2.8.0
+cryptography>=41.0.0
+
+# ── Data Processing (optional — used by analysis modules) ───
+pandas>=2.0.0
+numpy>=1.24.0

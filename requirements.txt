@@ -1,14 +1,72 @@
-torch
-transformers
-icd9cms
+# ============================================================
+# MediOrbit / CarePath AI — COMPLETE REQUIREMENTS
+# ============================================================
+# Install:  pip install -r requirements.txt
+# Setup:    python setup_dependencies.py
+# Run:      python main.py
+# ============================================================
+
+# ── API Framework ────────────────────────────────────────────
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+python-multipart>=0.0.9
+gunicorn>=21.2.0
+
+# ── Core LLM Providers & Orchestration ─────────────────────
 anthropic>=0.40.0
 openai>=1.3.0
 groq>=0.4.0
-streamlit>=1.35.0
-fastapi>=0.110.0
-uvicorn[standard]>=0.27.0
-pydantic>=2.6.0
-python-multipart>=0.0.9
-pytesseract>=0.3.10
-Pillow>=10.2.0
-python-dotenv>=1.0.0
+langchain>=0.1.0
+langgraph>=0.0.1
+langsmith>=0.0.62
+
+# ── PyTorch & Transformers (for MedGemma & NER) ────────────
+torch>=2.4.0
+transformers>=4.44.0
+huggingface-hub>=0.20.0
+Pillow>=10.4.0
+
+# ── Medical ML Models ────────────────────────────────────────
+icd9cms>=0.0.23
+sentence-transformers>=2.2.0
+
+# ── Database & ORM ───────────────────────────────────────────
+sqlalchemy>=2.0.0
+pydantic>=2.8.2
+
+# ── OCR & Document Processing ────────────────────────────────
+pytesseract>=0.3.13
+pdfplumber>=0.10.3
+pdf2image>=1.16.3
+pypdf>=3.17.0
+
+# ── HTTP Clients & Async ──────────────────────────────────────
+httpx>=0.27.0
+aiohttp>=3.9.0
+requests>=2.31.0
+aiofiles>=24.1.0
+
+# ── Data Processing ──────────────────────────────────────────
+pandas>=2.0.0
+numpy>=1.24.0
+faiss-cpu>=1.7.4
+
+# ── Rate Limiting ────────────────────────────────────────────
+slowapi>=0.1.9
+
+# ── Security (Auth & Crypto) ──────────────────────────────────
+bcrypt>=4.1.0
+PyJWT>=2.8.0
+cryptography>=41.0.0
+python-jose[cryptography]>=3.3.0
+
+# ── Environment & Config ──────────────────────────────────────
+python-dotenv>=1.0.1
+
+# ── GPU Monitoring (Optional — NVIDIA only) ────────────────
+nvidia-ml-py>=12.535.108
+
+# ── Monitoring & Logging ──────────────────────────────────────
+# Application Insights (optional)
+# opentelemetry-api>=1.20.0
+# opentelemetry-sdk>=1.20.0

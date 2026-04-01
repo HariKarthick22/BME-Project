@@ -12,8 +12,8 @@ import re
 
 import anthropic
 
-from models.schemas import SearchIntent
-from models.database import get_available_cities
+from ..models.schemas import SearchIntent
+from ..models.database import get_available_cities
 
 
 # Cache for available cities — fetched from database on first use
