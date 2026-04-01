@@ -196,6 +196,17 @@ class LLMService:
         self.ollama_medgemma_model = os.getenv("OLLAMA_MEDGEMMA_MODEL", "dcarrascosa/medgemma-1.5-4b-it:Q4_K_M").strip()
         self.ollama_fallback_model = os.getenv("OLLAMA_FALLBACK_MODEL", "llama3.2:3b").strip()
         self.ollama_timeout = int(os.getenv("OLLAMA_TIMEOUT", "120"))
+        self.ollama_num_predict = int(os.getenv("OLLAMA_NUM_PREDICT", "80"))
+        self.ollama_num_ctx = int(os.getenv("OLLAMA_NUM_CTX", "1024"))
+        self.ollama_num_thread = int(os.getenv("OLLAMA_NUM_THREAD", str(max(1, (os.cpu_count() or 4) - 1))))
+        self.ollama_temperature = float(os.getenv("OLLAMA_TEMPERATURE", "0.1"))
+        self.ollama_num_batch = int(os.getenv("OLLAMA_NUM_BATCH", "256"))
+        self.ollama_keep_alive = os.getenv("OLLAMA_KEEP_ALIVE", "20m").strip() or "20m"
+        self.ollama_models_cache_ttl = int(os.getenv("OLLAMA_MODELS_CACHE_TTL", "30"))
+        self.response_max_chars = int(os.getenv("RESPONSE_MAX_CHARS", "420"))
+        self.response_max_sentences = int(os.getenv("RESPONSE_MAX_SENTENCES", "3"))
+        self._ollama_models_cache: List[str] = []
+        self._ollama_models_cache_at = 0.0
         self.anthropic_key = os.getenv("ANTHROPIC_API_KEY", "").strip()
         self.openai_key = os.getenv("OPENAI_API_KEY", "").strip()
         self.groq_key = os.getenv("GROQ_API_KEY", "").strip()
@@ -276,14 +287,54 @@ class LLMService:
         selected = self._pick_ollama_model(available)
         return bool(available), available, selected or "none"
 
+    async def warmup_local_model(self) -> None:
+        """Warm up local model so first user request is faster."""
+        available = await self._available_ollama_models()
+        model_name = self._pick_ollama_model(available)
+        if not model_name:
+            return
+
+        payload = {
+            "model": model_name,
+            "messages": [
+                {"role": "system", "content": "Reply briefly."},
+                {"role": "user", "content": "ping"},
+            ],
+            "stream": False,
+            "keep_alive": self.ollama_keep_alive,
+            "options": {
+                "temperature": 0.0,
+                "num_predict": 8,
+                "num_ctx": 512,
+                "num_thread": self.ollama_num_thread,
+                "num_batch": self.ollama_num_batch,
+            },
+        }
+
+        try:
+            import httpx
+
+            async with httpx.AsyncClient(timeout=20) as client:
+                await client.post(f"{self.ollama_base}/api/chat", json=payload)
+                logger.info("Local Ollama model warmup completed")
+        except Exception as e:
+            logger.info(f"Local Ollama warmup skipped: {e}")
+
     async def _available_ollama_models(self) -> List[str]:
+        now = time.monotonic()
+        if self._ollama_models_cache and (now - self._ollama_models_cache_at) < self.ollama_models_cache_ttl:
+            return self._ollama_models_cache
+
         try:
             import httpx
 
             async with httpx.AsyncClient(timeout=5) as client:
                 response = await client.get(f"{self.ollama_base}/api/tags")
                 response.raise_for_status()
-                return [m.get("name", "") for m in response.json().get("models", []) if m.get("name")]
+                models = [m.get("name", "") for m in response.json().get("models", []) if m.get("name")]
+                self._ollama_models_cache = models
+                self._ollama_models_cache_at = now
+                return models
         except Exception:
             return []
 
@@ -297,6 +348,30 @@ class LLMService:
                     return name
         return available[0]
 
+    def _system_prompt(self) -> str:
+        return (
+            "You are a medical assistant. Respond quickly and concisely. "
+            "Use at most 3 short sentences, avoid long disclaimers, and focus on practical next steps. "
+            "If urgent red-flag symptoms are present, explicitly say to seek immediate care."
+        )
+
+    def _constrain_reply(self, reply: str) -> str:
+        cleaned = re.sub(r"\s+", " ", (reply or "")).strip()
+        if not cleaned:
+            return ""
+
+        pieces = re.split(r"(?<=[.!?])\s+", cleaned)
+        if len(pieces) > self.response_max_sentences:
+            cleaned = " ".join(pieces[: self.response_max_sentences]).strip()
+
+        if len(cleaned) > self.response_max_chars:
+            cleaned = cleaned[: self.response_max_chars]
+            if " " in cleaned:
+                cleaned = cleaned.rsplit(" ", 1)[0]
+            cleaned = cleaned.rstrip(" ,;:-") + "."
+
+        return cleaned
+
     async def _ollama_chat(self, message: str, stream: bool = False) -> AsyncIterator[str] | str | None:
         available = await self._available_ollama_models()
         model_name = self._pick_ollama_model(available)
@@ -308,12 +383,19 @@ class LLMService:
             "messages": [
                 {
                     "role": "system",
-                    "content": "You are a helpful medical assistant. Provide accurate medical information and suggest consultation with professionals when needed.",
+                    "content": self._system_prompt(),
                 },
                 {"role": "user", "content": message},
             ],
             "stream": stream,
-            "options": {"temperature": 0.3, "num_predict": 512, "num_ctx": 4096},
+            "keep_alive": self.ollama_keep_alive,
+            "options": {
+                "temperature": self.ollama_temperature,
+                "num_predict": self.ollama_num_predict,
+                "num_ctx": self.ollama_num_ctx,
+                "num_thread": self.ollama_num_thread,
+                "num_batch": self.ollama_num_batch,
+            },
         }
 
         if not stream:
@@ -323,12 +405,15 @@ class LLMService:
                 async with httpx.AsyncClient(timeout=self.ollama_timeout) as client:
                     response = await client.post(f"{self.ollama_base}/api/chat", json=payload)
                     response.raise_for_status()
-                    return response.json().get("message", {}).get("content", "").strip()
+                    reply = response.json().get("message", {}).get("content", "").strip()
+                    return self._constrain_reply(reply)
             except Exception as e:
                 logger.warning(f"Ollama non-stream request failed: {e}")
                 return None
 
         async def _generator() -> AsyncIterator[str]:
+            emitted_chars = 0
+            emitted_sentences = 0
             try:
                 import httpx
 
@@ -342,7 +427,16 @@ class LLMService:
                                 chunk = json.loads(line)
                                 text = chunk.get("message", {}).get("content", "")
                                 if text:
-                                    yield text
+                                    remaining = self.response_max_chars - emitted_chars
+                                    if remaining <= 0:
+                                        break
+                                    piece = text[:remaining]
+                                    if piece:
+                                        emitted_chars += len(piece)
+                                        emitted_sentences += piece.count(".") + piece.count("!") + piece.count("?")
+                                        yield piece
+                                    if emitted_chars >= self.response_max_chars or emitted_sentences >= self.response_max_sentences:
+                                        break
                                 if chunk.get("done"):
                                     break
                             except json.JSONDecodeError:
@@ -366,7 +460,7 @@ class LLMService:
             if candidate == "local_ollama":
                 local_reply = await self._ollama_chat(message=message, stream=False)
                 if isinstance(local_reply, str) and local_reply.strip():
-                    return local_reply.strip(), self.ollama_medgemma_model, "local_ollama"
+                    return self._constrain_reply(local_reply.strip()), self.ollama_medgemma_model, "local_ollama"
 
             if candidate == "anthropic" and self.anthropic_client:
                 try:
@@ -382,7 +476,7 @@ class LLMService:
                             text_parts.append(block_text)
                     reply = "\n".join(text_parts).strip()
                     if reply:
-                        return reply, model or self.default_anthropic_model, "anthropic"
+                        return self._constrain_reply(reply), model or self.default_anthropic_model, "anthropic"
                 except Exception as e:
                     logger.warning(f"Anthropic request failed: {e}")
 
@@ -395,7 +489,7 @@ class LLMService:
                     )
                     reply = (response.choices[0].message.content or "").strip()
                     if reply:
-                        return reply, model or self.default_openai_model, "openai"
+                        return self._constrain_reply(reply), model or self.default_openai_model, "openai"
                 except Exception as e:
                     logger.warning(f"OpenAI request failed: {e}")
 
@@ -408,11 +502,11 @@ class LLMService:
                     )
                     reply = (response.choices[0].message.content or "").strip()
                     if reply:
-                        return reply, model or self.default_groq_model, "groq"
+                        return self._constrain_reply(reply), model or self.default_groq_model, "groq"
                 except Exception as e:
                     logger.warning(f"Groq request failed: {e}")
 
-        return self.fallback_reply(message), "fallback-local", "fallback_local"
+        return self._constrain_reply(self.fallback_reply(message)), "fallback-local", "fallback_local"
 
     async def chat_stream(self, message: str, provider: Optional[str] = None, model: Optional[str] = None) -> AsyncIterator[str]:
         """Stream chat response"""
@@ -603,6 +697,7 @@ async def lifespan(app: FastAPI):
     logger.info("Starting up application...")
     init_database()
     llm_service = LLMService()
+    await llm_service.warmup_local_model()
     nlp_service = MedicalNLPService()
     logger.info("Application startup complete")
     
@@ -692,9 +787,22 @@ async def chat(request: ChatRequest):
     
     async def generate():
         async for chunk in service.chat_stream(request.message, provider=provider, model=model):
-            yield chunk
+            if not chunk:
+                continue
+            # Always emit valid SSE frames so frontend stream parsers can process reliably.
+            text = chunk.replace("\r", " ").replace("\n", " ")
+            yield f"data: {text}\n\n"
+        yield "data: [DONE]\n\n"
     
-    return StreamingResponse(generate(), media_type="text/event-stream")
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 @app.post("/api/chat/stream")
@@ -913,22 +1021,28 @@ def start_servers():
     if frontend_dir.exists():
         if _is_port_in_use(5173):
             logger.warning("Port 5173 is already in use. Reusing existing frontend server.")
-            if not _http_reachable("http://127.0.0.1:5173"):
-                raise RuntimeError("Port 5173 is occupied but frontend is not reachable at http://127.0.0.1:5173")
-            frontend_process = None
+            if _http_reachable("http://127.0.0.1:5173") or _http_reachable("http://localhost:5173"):
+                frontend_process = None
+            else:
+                logger.warning("Port 5173 is occupied but no reachable frontend responded. Continuing with backend-only mode.")
+                frontend_process = None
         else:
             logger.info("Starting Frontend Dev Server (Port 5173)...")
             if not shutil.which("npm"):
-                raise RuntimeError("npm command not found. Install Node.js to run frontend from main.py")
+                logger.warning("npm command not found. Skipping frontend startup and continuing with backend-only mode.")
+                frontend_process = None
+                return backend_process, frontend_process, ollama_process
             frontend_cmd = ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173", "--strictPort"]
             frontend_process = subprocess.Popen(
                 frontend_cmd,
                 cwd=str(frontend_dir)
             )
-            if not _wait_for_port(5173, timeout_seconds=20.0):
-                raise RuntimeError("Frontend server failed to bind to port 5173")
-            if not _http_reachable("http://127.0.0.1:5173", timeout_seconds=4.0):
-                raise RuntimeError("Frontend bound to port 5173 but did not respond to HTTP checks")
+            if not _wait_for_port(5173, timeout_seconds=30.0):
+                logger.warning("Frontend server failed to bind to port 5173. Continuing with backend-only mode.")
+                frontend_process = None
+            elif not (_http_reachable("http://127.0.0.1:5173", timeout_seconds=4.0) or _http_reachable("http://localhost:5173", timeout_seconds=4.0)):
+                logger.warning("Frontend on port 5173 did not respond to HTTP checks. Continuing with backend-only mode.")
+                frontend_process = None
     else:
         logger.warning("Frontend directory not found")
         frontend_process = None
@@ -950,30 +1064,30 @@ def manage_servers(backend_proc, frontend_proc, ollama_proc):
     logger.info("API Docs: http://localhost:8000/docs\n")
     logger.info("Press Ctrl+C to stop both servers\n")
     logger.info("=" * 80 + "\n")
+
+    backend_reported_stopped = False
+    frontend_reported_stopped = False
+    ollama_reported_stopped = False
     
     try:
         while True:
             if backend_proc and backend_proc.poll() is not None:
-                logger.error("Backend process stopped!")
-                if frontend_proc:
-                    frontend_proc.terminate()
-                sys.exit(1)
+                if not backend_reported_stopped:
+                    logger.error("Backend process stopped! Other services will keep running until Ctrl+C.")
+                    backend_reported_stopped = True
+                backend_proc = None
             
             if frontend_proc and frontend_proc.poll() is not None:
-                logger.error("Frontend process stopped!")
-                if backend_proc:
-                    backend_proc.terminate()
-                if ollama_proc:
-                    ollama_proc.terminate()
-                sys.exit(1)
+                if not frontend_reported_stopped:
+                    logger.error("Frontend process stopped! Other services will keep running until Ctrl+C.")
+                    frontend_reported_stopped = True
+                frontend_proc = None
 
             if ollama_proc and ollama_proc.poll() is not None:
-                logger.error("Ollama process stopped!")
-                if backend_proc:
-                    backend_proc.terminate()
-                if frontend_proc:
-                    frontend_proc.terminate()
-                sys.exit(1)
+                if not ollama_reported_stopped:
+                    logger.error("Ollama process stopped! Backend/frontend will keep running until Ctrl+C.")
+                    ollama_reported_stopped = True
+                ollama_proc = None
             
             time.sleep(1)
     

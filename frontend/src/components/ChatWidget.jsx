@@ -39,69 +39,104 @@ export const ChatWidget = () => {
         setStreaming(true);
 
         // Placeholder for the streaming assistant reply
-        const assistantIdx = messages.length + 1;
         setMessages(prev => [...prev, { role: 'assistant', text: '', streaming: true }]);
 
+        const updateAssistant = (value, isStreaming = true) => {
+            setMessages(prev => {
+                const updated = [...prev];
+                updated[updated.length - 1] = { role: 'assistant', text: value, streaming: isStreaming };
+                return updated;
+            });
+        };
+
         try {
+            const streamController = new AbortController();
+            const streamTimer = setTimeout(() => streamController.abort(), 90000);
             const res = await fetch(API_ENDPOINTS.CHAT_STREAM, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ session_id: SESSION_ID, message: text }),
+                body: JSON.stringify({
+                    session_id: SESSION_ID,
+                    message: text,
+                    model_config: { provider: 'local' },
+                }),
+                signal: streamController.signal,
             });
+            clearTimeout(streamTimer);
 
             if (!res.ok) throw new Error(`Server error ${res.status}`);
+            if (!res.body) throw new Error('Empty streaming response body');
 
             const reader = res.body.getReader();
             const decoder = new TextDecoder();
             let accumulated = '';
+            let buffer = '';
+
+            const appendText = (piece) => {
+                if (!piece) return;
+                accumulated += piece;
+                updateAssistant(accumulated, true);
+            };
 
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
 
-                const chunk = decoder.decode(value, { stream: true });
-                const lines = chunk.split('\n');
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
+
                 for (const line of lines) {
-                    if (!line.startsWith('data: ')) continue;
-                    const data = line.slice(6);
-                    if (data === '[DONE]') break;
-                    accumulated += data;
-                    setMessages(prev => {
-                        const updated = [...prev];
-                        updated[updated.length - 1] = { role: 'assistant', text: accumulated, streaming: true };
-                        return updated;
-                    });
+                    if (!line) continue;
+
+                    if (line.startsWith('data:')) {
+                        // Keep original spacing from streamed chunks.
+                        let data = line.slice(5);
+                        if (data.startsWith(' ')) data = data.slice(1);
+                        if (data === '[DONE]') continue;
+                        appendText(data);
+                        continue;
+                    }
+
+                    // Support plain-text chunk streams if server skips SSE framing.
+                    appendText(line);
+                }
+            }
+
+            if (buffer) {
+                if (buffer.startsWith('data:')) {
+                    let data = buffer.slice(5);
+                    if (data.startsWith(' ')) data = data.slice(1);
+                    if (data && data !== '[DONE]') appendText(data);
+                } else {
+                    appendText(buffer);
                 }
             }
 
             // Mark streaming complete
-            setMessages(prev => {
-                const updated = [...prev];
-                updated[updated.length - 1] = { role: 'assistant', text: accumulated || 'No response.' };
-                return updated;
-            });
+            updateAssistant(accumulated || 'No response from model. Please retry.', false);
 
         } catch (err) {
             // Fallback: try non-streaming /api/chat
             try {
-                const res2 = await fetch(API_ENDPOINTS.CHAT_STREAM.replace('/stream', ''), {
+                const fallbackController = new AbortController();
+                const fallbackTimer = setTimeout(() => fallbackController.abort(), 60000);
+                const res2 = await fetch(`${API_ENDPOINTS.CHAT_STREAM.replace('/stream', '/message')}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ session_id: SESSION_ID, message: text }),
+                    body: JSON.stringify({
+                        session_id: SESSION_ID,
+                        message: text,
+                        model_config: { provider: 'local' },
+                    }),
+                    signal: fallbackController.signal,
                 });
+                clearTimeout(fallbackTimer);
                 const data = await res2.json();
                 const reply = data.message || data.response || 'No response received.';
-                setMessages(prev => {
-                    const updated = [...prev];
-                    updated[updated.length - 1] = { role: 'assistant', text: reply };
-                    return updated;
-                });
+                updateAssistant(reply, false);
             } catch {
-                setMessages(prev => {
-                    const updated = [...prev];
-                    updated[updated.length - 1] = { role: 'assistant', text: `Error: ${err.message}. Is the backend running?` };
-                    return updated;
-                });
+                updateAssistant(`Error: ${err.message}. Is the backend running?`, false);
             }
         } finally {
             setStreaming(false);
@@ -123,14 +158,13 @@ export const ChatWidget = () => {
 
             {/* Chat panel */}
             {open && (
-                <div className="fixed bottom-28 right-8 z-50 w-95 max-h-140 flex flex-col bg-surface-container-lowest rounded-2xl shadow-[0_24px_64px_rgba(26,28,28,0.18)] border border-outline-variant/20 overflow-hidden">
+                <div className="fixed bottom-28 right-4 sm:right-8 z-50 w-[calc(100vw-2rem)] sm:w-95 max-h-[80vh] sm:max-h-140 flex flex-col bg-surface-container-lowest rounded-2xl shadow-[0_24px_64px_rgba(26,28,28,0.18)] border border-outline-variant/20 overflow-hidden">
 
                     {/* Header */}
                     <div className="bg-primary px-5 py-4 flex items-center gap-3 shrink-0">
                         <span className="material-symbols-outlined text-secondary-fixed text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>vital_signs</span>
                         <div>
                             <p className="text-on-primary font-headline italic text-base leading-tight">CarePath AI</p>
-                            <p className="text-on-primary-container text-[11px] uppercase tracking-widest">MedGemma · Local Model</p>
                         </div>
                         <div className="ml-auto flex items-center gap-1.5">
                             <span className="w-2 h-2 bg-secondary rounded-full animate-pulse"></span>
@@ -141,8 +175,8 @@ export const ChatWidget = () => {
                     {/* Messages */}
                     <div className="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar">
                         {messages.map((msg, i) => (
-                            <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                            <div key={i} className={`flex min-w-0 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                <div className={`max-w-[88%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap wrap-break-word overflow-x-hidden ${
                                     msg.role === 'user'
                                         ? 'bg-primary text-on-primary rounded-br-sm'
                                         : 'bg-surface-container-low text-on-surface rounded-bl-sm'
